@@ -3,27 +3,29 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ZOF Solver</title>
+    <title>ZOF Solver – Nathaniel Omovbude</title>
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body class="min-h-screen bg-slate-950 text-slate-50">
-    <div class="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-10">
-      <header class="text-center">
-        <p class="text-sm font-semibold uppercase tracking-wide text-emerald-400">
+
+  <body class="min-h-screen bg-gray-100 text-gray-900">
+    <div class="mx-auto w-full max-w-4xl px-4 py-10 space-y-10">
+
+      <!-- Header -->
+      <header class="text-center space-y-2">
+        <h1 class="text-3xl font-semibold tracking-tight">
           Zero of Functions Solver
-        </p>
-        <h1 class="mt-2 text-3xl font-bold text-white">Interactive Root-Finding Toolkit</h1>
-        <p class="mt-3 text-base text-slate-300">
-          Choose a numerical method, provide equation parameters, and visualize each iteration
-          to understand convergence behaviour.
+        </h1>
+        <p class="text-base text-gray-600">
+          Numerical Methods Toolkit for Computing Function Roots
         </p>
       </header>
 
+      <!-- Flash messages -->
       {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-      <section class="space-y-3" aria-live="polite">
+      <section class="space-y-3">
         {% for category, message in messages %}
-        <div class="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+        <div class="rounded-md border border-red-300 bg-red-100 px-4 py-3 text-sm text-red-700">
           {{ message }}
         </div>
         {% endfor %}
@@ -31,220 +33,218 @@
       {% endif %}
       {% endwith %}
 
-      <section class="rounded-2xl border border-slate-800 bg-slate-900/70 p-6 backdrop-blur">
-        <form method="POST" class="space-y-6" aria-label="ZOF solver form">
+      <!-- Form Section -->
+      <section class="rounded-md bg-white border border-gray-300 p-6 shadow-sm">
+        <form method="POST" class="space-y-6">
+
           <div class="grid gap-6 md:grid-cols-2">
-            <label class="flex flex-col gap-2">
-              <span class="text-sm font-semibold text-slate-200">Numerical Method</span>
+
+            <!-- Numerical Method -->
+            <label class="flex flex-col gap-1">
+              <span class="text-sm font-medium">Numerical Method</span>
               <select
                 name="method"
                 id="method"
-                class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-emerald-400 focus:outline-none"
-                aria-label="Numerical method selector"
+                class="rounded border border-gray-300 bg-white px-3 py-2 focus:border-gray-900 focus:outline-none"
               >
-                <option value="" disabled selected>Select a method</option>
+                <option value="" disabled selected>Select method</option>
                 {% for key, label in method_options.items() %}
-                <option value="{{ key }}" {% if form_values.get('method') == key %}selected{% endif %}>{{ label }}</option>
+                <option value="{{ key }}" {% if form_values.get('method') == key %}selected{% endif %}>
+                  {{ label }}
+                </option>
                 {% endfor %}
               </select>
             </label>
 
-            <label
-              class="flex flex-col gap-2 method-field"
-              data-methods="bisection regula_falsi secant newton_raphson modified_secant"
-            >
-              <span class="text-sm font-semibold text-slate-200">Equation f(x) = 0</span>
+            <!-- Equation -->
+            <label class="flex flex-col gap-1 method-field"
+              data-methods="bisection regula_falsi secant newton_raphson modified_secant">
+              <span class="text-sm font-medium">Equation f(x)</span>
               <input
                 type="text"
                 name="equation"
                 value="{{ form_values.get('equation', '') }}"
-                class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none"
-                placeholder="e.g., x**3 - 4*x + 1"
-                aria-label="Equation f of x"
+                class="rounded border border-gray-300 px-3 py-2 focus:border-gray-900 focus:outline-none"
+                placeholder="e.g. x**3 - 4*x + 1"
               />
             </label>
 
-            <label
-              class="flex flex-col gap-2 method-field"
-              data-methods="newton_raphson"
-            >
-              <span class="text-sm font-semibold text-slate-200">Derivative f'(x)</span>
+            <!-- Derivative -->
+            <label class="flex flex-col gap-1 method-field"
+              data-methods="newton_raphson">
+              <span class="text-sm font-medium">Derivative f'(x)</span>
               <input
                 type="text"
                 name="derivative"
                 value="{{ form_values.get('derivative', '') }}"
-                class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none"
-                placeholder="e.g., 3*x**2 - 4"
-                aria-label="Derivative of equation"
+                class="rounded border border-gray-300 px-3 py-2 focus:border-gray-900 focus:outline-none"
+                placeholder="e.g. 3*x**2 - 4"
               />
             </label>
 
-            <label
-              class="flex flex-col gap-2 method-field"
-              data-methods="fixed_point"
-            >
-              <span class="text-sm font-semibold text-slate-200">Iteration Function g(x)</span>
+            <!-- g(x) -->
+            <label class="flex flex-col gap-1 method-field"
+              data-methods="fixed_point">
+              <span class="text-sm font-medium">Iteration Function g(x)</span>
               <input
                 type="text"
                 name="g_equation"
                 value="{{ form_values.get('g_equation', '') }}"
-                class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none"
-                placeholder="e.g., (4 - x**3) / 2"
-                aria-label="Fixed point function g of x"
+                class="rounded border border-gray-300 px-3 py-2 focus:border-gray-900 focus:outline-none"
+                placeholder="e.g. (4 - x**3) / 2"
               />
             </label>
 
-            <label
-              class="flex flex-col gap-2 method-field"
-              data-methods="bisection regula_falsi"
-            >
-              <span class="text-sm font-semibold text-slate-200">Lower Bound (a)</span>
+            <!-- Bounds -->
+            <label class="flex flex-col gap-1 method-field"
+              data-methods="bisection regula_falsi">
+              <span class="text-sm font-medium">Lower Bound (a)</span>
               <input
                 type="number"
                 step="any"
                 name="lower_bound"
                 value="{{ form_values.get('lower_bound', '') }}"
-                class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none"
-                aria-label="Lower bound"
+                class="rounded border border-gray-300 px-3 py-2 focus:border-gray-900 focus:outline-none"
               />
             </label>
 
-            <label
-              class="flex flex-col gap-2 method-field"
-              data-methods="bisection regula_falsi"
-            >
-              <span class="text-sm font-semibold text-slate-200">Upper Bound (b)</span>
+            <label class="flex flex-col gap-1 method-field"
+              data-methods="bisection regula_falsi">
+              <span class="text-sm font-medium">Upper Bound (b)</span>
               <input
                 type="number"
                 step="any"
                 name="upper_bound"
                 value="{{ form_values.get('upper_bound', '') }}"
-                class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none"
-                aria-label="Upper bound"
+                class="rounded border border-gray-300 px-3 py-2 focus:border-gray-900 focus:outline-none"
               />
             </label>
 
-            <label
-              class="flex flex-col gap-2 method-field"
-              data-methods="secant newton_raphson fixed_point modified_secant"
-            >
-              <span class="text-sm font-semibold text-slate-200">Initial Guess x₀</span>
+            <!-- Initial guesses -->
+            <label class="flex flex-col gap-1 method-field"
+              data-methods="secant newton_raphson fixed_point modified_secant">
+              <span class="text-sm font-medium">Initial Guess x₀</span>
               <input
                 type="number"
                 step="any"
                 name="x0"
                 value="{{ form_values.get('x0', '') }}"
-                class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none"
-                aria-label="Initial guess x0"
+                class="rounded border border-gray-300 px-3 py-2 focus:border-gray-900 focus:outline-none"
               />
             </label>
 
-            <label
-              class="flex flex-col gap-2 method-field"
-              data-methods="secant"
-            >
-              <span class="text-sm font-semibold text-slate-200">Initial Guess x₁</span>
+            <label class="flex flex-col gap-1 method-field"
+              data-methods="secant">
+              <span class="text-sm font-medium">Initial Guess x₁</span>
               <input
                 type="number"
                 step="any"
                 name="x1"
                 value="{{ form_values.get('x1', '') }}"
-                class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none"
-                aria-label="Initial guess x1"
+                class="rounded border border-gray-300 px-3 py-2 focus:border-gray-900 focus:outline-none"
               />
             </label>
 
-            <label
-              class="flex flex-col gap-2 method-field"
-              data-methods="modified_secant"
-            >
-              <span class="text-sm font-semibold text-slate-200">Delta (δ)</span>
+            <!-- Delta -->
+            <label class="flex flex-col gap-1 method-field"
+              data-methods="modified_secant">
+              <span class="text-sm font-medium">Delta (δ)</span>
               <input
                 type="number"
                 step="any"
                 name="delta"
                 value="{{ form_values.get('delta', '') }}"
-                class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none"
-                aria-label="Delta parameter"
+                class="rounded border border-gray-300 px-3 py-2 focus:border-gray-900 focus:outline-none"
               />
             </label>
 
-            <label class="flex flex-col gap-2">
-              <span class="text-sm font-semibold text-slate-200">Tolerance</span>
+            <!-- Tolerance -->
+            <label class="flex flex-col gap-1">
+              <span class="text-sm font-medium">Tolerance</span>
               <input
                 type="number"
                 step="any"
                 name="tolerance"
                 value="{{ form_values.get('tolerance', '0.0001') }}"
-                class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none"
-                aria-label="Tolerance"
+                class="rounded border border-gray-300 px-3 py-2 focus:border-gray-900 focus:outline-none"
               />
             </label>
 
-            <label class="flex flex-col gap-2">
-              <span class="text-sm font-semibold text-slate-200">Maximum Iterations</span>
+            <!-- Max iterations -->
+            <label class="flex flex-col gap-1">
+              <span class="text-sm font-medium">Maximum Iterations</span>
               <input
                 type="number"
                 name="max_iterations"
                 value="{{ form_values.get('max_iterations', '50') }}"
-                class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none"
-                aria-label="Maximum iterations"
+                class="rounded border border-gray-300 px-3 py-2 focus:border-gray-900 focus:outline-none"
               />
             </label>
+
           </div>
 
           <button
             type="submit"
-            class="w-full rounded-xl bg-emerald-500 px-4 py-3 text-center text-base font-semibold text-slate-900 transition hover:bg-emerald-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
+            class="w-full rounded-md bg-gray-900 text-white py-3 text-sm font-medium hover:bg-gray-700 transition"
           >
             Solve Equation
           </button>
         </form>
       </section>
 
+      <!-- Result -->
       {% if result %}
-      <section class="space-y-4">
-        <div class="grid gap-4 md:grid-cols-3">
-          <article class="rounded-xl border border-slate-800 bg-slate-900/80 p-4">
-            <p class="text-xs uppercase tracking-wide text-slate-400">Estimated Root</p>
-            <p class="mt-2 text-2xl font-bold text-white">{{ '%.10f' | format(result.root) }}</p>
-          </article>
-          <article class="rounded-xl border border-slate-800 bg-slate-900/80 p-4">
-            <p class="text-xs uppercase tracking-wide text-slate-400">Final Error</p>
-            <p class="mt-2 text-2xl font-bold text-white">{{ '%.4e' | format(result.error) }}</p>
-          </article>
-          <article class="rounded-xl border border-slate-800 bg-slate-900/80 p-4">
-            <p class="text-xs uppercase tracking-wide text-slate-400">Iterations Used</p>
-            <p class="mt-2 text-2xl font-bold text-white">{{ result.iterations_used }}</p>
-          </article>
+      <section class="space-y-6">
+
+        <div class="grid md:grid-cols-3 gap-4">
+          <div class="rounded border border-gray-300 bg-white p-4">
+            <p class="text-xs text-gray-500">Estimated Root</p>
+            <p class="mt-1 text-xl font-semibold">{{ '%.10f' | format(result.root) }}</p>
+          </div>
+          <div class="rounded border border-gray-300 bg-white p-4">
+            <p class="text-xs text-gray-500">Final Error</p>
+            <p class="mt-1 text-xl font-semibold">{{ '%.4e' | format(result.error) }}</p>
+          </div>
+          <div class="rounded border border-gray-300 bg-white p-4">
+            <p class="text-xs text-gray-500">Iterations Used</p>
+            <p class="mt-1 text-xl font-semibold">{{ result.iterations_used }}</p>
+          </div>
         </div>
 
-        <div class="overflow-x-auto rounded-2xl border border-slate-800">
-          <table class="min-w-full divide-y divide-slate-800 text-sm">
-            <thead class="bg-slate-900/80 text-left text-slate-300">
+        <div class="overflow-x-auto border border-gray-300 rounded-md bg-white">
+          <table class="min-w-full text-sm">
+            <thead class="bg-gray-200 text-left">
               <tr>
-                <th class="px-4 py-3 font-semibold">Iteration</th>
-                <th class="px-4 py-3 font-semibold">xₙ</th>
-                <th class="px-4 py-3 font-semibold">f(xₙ)</th>
-                <th class="px-4 py-3 font-semibold">Error</th>
+                <th class="px-4 py-2 font-medium">Iteration</th>
+                <th class="px-4 py-2 font-medium">xₙ</th>
+                <th class="px-4 py-2 font-medium">f(xₙ)</th>
+                <th class="px-4 py-2 font-medium">Error</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-900 bg-slate-950/60">
+            <tbody class="divide-y divide-gray-200">
               {% for row in result.iterations %}
-              <tr class="hover:bg-slate-900/50">
-                <td class="px-4 py-2 text-slate-200">{{ row.iteration }}</td>
-                <td class="px-4 py-2 font-mono text-emerald-300">{{ '%.8f' | format(row.xn) }}</td>
-                <td class="px-4 py-2 font-mono text-sky-300">{{ '%.8f' | format(row.fxn) }}</td>
-                <td class="px-4 py-2 font-mono text-rose-300">{{ '%.8e' | format(row.error) }}</td>
+              <tr>
+                <td class="px-4 py-2">{{ row.iteration }}</td>
+                <td class="px-4 py-2 font-mono">{{ '%.8f' | format(row.xn) }}</td>
+                <td class="px-4 py-2 font-mono">{{ '%.8f' | format(row.fxn) }}</td>
+                <td class="px-4 py-2 font-mono">{{ '%.8e' | format(row.error) }}</td>
               </tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
+
       </section>
       {% endif %}
+
+      <!-- Footer -->
+      <footer class="text-center text-xs text-gray-500 pt-8">
+        Developed by <span class="font-medium">Nathaniel Omovbude</span> · For Academic Use
+      </footer>
+
     </div>
 
+    <!-- JS: dynamic field visibility -->
     <script>
       const methodSelect = document.getElementById("method");
       const methodFields = document.querySelectorAll(".method-field");
@@ -261,10 +261,9 @@
         });
       };
 
-      if (methodSelect) {
-        methodSelect.addEventListener("change", syncMethodFields);
-        syncMethodFields();
-      }
+      methodSelect.addEventListener("change", syncMethodFields);
+      syncMethodFields();
     </script>
+
   </body>
 </html>
